@@ -33,7 +33,9 @@ func main() {
 	l := log.New(os.Stdout, "Product-api", log.LstdFlags)
 
 	g := log.New(os.Stdout, "Test-Case", log.LstdFlags)
+	a := log.New(os.Stdout, "Product-API-GET", log.LstdFlags)
 	hh := handlers.NewHello(l)
+	product_api := handlers.NewProduct(a)
 
 	//This is called registering the handler to the server mutex
 	gb := handlers.NewGoodbye(g)
@@ -50,6 +52,7 @@ func main() {
 
 	sm.Handle("/", hh)
 	sm.Handle("/goodBye", gb)
+	sm.Handle("/API", product_api)
 
 	s := &http.Server{
 		Addr:         ":8000",

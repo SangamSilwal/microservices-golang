@@ -1,16 +1,31 @@
 package data
 
-import "time"
+import (
+	"encoding/json"
+	"io"
+	"time"
+)
 
 type Product struct {
-	ID          int
-	Name        string
-	Description string
-	Price       float32
-	SKU         string
-	CreatedOn   string
-	UpdatedOn   string
-	DeletedOn   string
+	ID          int     `json:"id"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Price       float32 `json:"price"`
+	SKU         string  `json:"sku"`
+	CreatedOn   string  `json:"-"`
+	UpdatedOn   string  `json:"-"`
+	DeletedOn   string  `json:"-"`
+}
+
+// Creating a Products type containg a array of product
+type Products []*Product
+
+func (p *Products) TOjson(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(p)
+}
+func GetProduct() Products {
+	return productList
 }
 
 var productList = []*Product{
