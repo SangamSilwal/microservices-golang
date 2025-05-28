@@ -1,11 +1,14 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"time"
 
 	"github.com/SangamSilwal/microservices-golang/handlers"
 )
@@ -31,6 +34,8 @@ func main() {
 
 	g := log.New(os.Stdout, "Test-Case", log.LstdFlags)
 	hh := handlers.NewHello(l)
+
+	//This is called registering the handler to the server mutex
 	gb := handlers.NewGoodbye(g)
 	/*
 		ServeMux is an HTTP request multiplexer.
@@ -46,5 +51,33 @@ func main() {
 	sm.Handle("/", hh)
 	sm.Handle("/goodBye", gb)
 
-	http.ListenAndServe(":8000", sm)
+	s := &http.Server{
+		Addr:         ":8000",
+		Handler:      sm,
+		IdleTimeout:  120 * time.Second,
+		ReadTimeout:  1 * time.Second,
+		WriteTimeout: 1 * time.Second,
+	}
+
+	// http.ListenAndServe(":8000", sm)
+
+	//This below code is for gracefull shutDown
+	//GraceFull shutDown ensure that our application completes all the remaining task before shutting down the server
+	go func() {
+		err := s.ListenAndServe()
+		if err != nil {
+			l.Fatal(err)
+		}
+	}()
+
+	sigChan := make(chan os.Signal)
+	signal.Notify(sigChan, os.Interrupt)
+	signal.Notify(sigChan, os.Kill)
+
+	sig := <-sigChan
+	l.Println("Received Terminated Gracefull shoutdown", sig)
+
+	//A context is the paryt of the program which tells the computer when to stop executing functions in the background
+	tc, _ := context.WithTimeout(context.Background(), 30*time.Second)
+	s.Shutdown(tc)
 }
