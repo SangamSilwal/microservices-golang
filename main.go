@@ -28,15 +28,23 @@ func main() {
 	// http.ListenAndServe(":8000", nil)
 
 	l := log.New(os.Stdout, "Product-api", log.LstdFlags)
+
+	g := log.New(os.Stdout, "Test-Case", log.LstdFlags)
 	hh := handlers.NewHello(l)
+	gb := handlers.NewGoodbye(g)
 	/*
-		ServeMux is an HTTP request multiplexer. It is used for request routing and dispatching. The request routing is based on URL patterns. Each incoming request's
+		ServeMux is an HTTP request multiplexer.
+		 It is used for request routing and dispatching.
+		 The request routing is based on URL patterns. Each incoming request's
 		URL is matched against a list of registered patterns.
 		 A handler for the pattern that most closely fits the URL is called.
 
 	*/
+
 	sm := http.NewServeMux()
+
 	sm.Handle("/", hh)
+	sm.Handle("/goodBye", gb)
 
 	http.ListenAndServe(":8000", sm)
 }
